@@ -1,0 +1,17 @@
+{
+  "name": "Project Word",
+  "short_name": "Project Word",
+  "description": "A free offline-friendly web word processor.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eef1f6",
+  "theme_color": "#136f63",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

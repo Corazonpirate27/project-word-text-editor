@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#136f63">
+    <title>Project Word</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark">W</div>
+          <div>
+            <h1>Project Word</h1>
+            <input id="docTitle" class="title-input" value="Untitled document" aria-label="Document title">
+          </div>
+        </div>
+        <div class="file-actions">
+          <button id="newDoc" title="New document">New</button>
+          <button id="openDoc" title="Open document">Open</button>
+          <button id="saveDoc" title="Save in browser">Save</button>
+          <button id="downloadWord" title="Download Word-compatible document">Word</button>
+          <button id="downloadDocx" title="Download DOCX document">DOCX</button>
+          <button id="downloadDoc" title="Download HTML">HTML</button>
+          <button id="downloadText" title="Download text">Text</button>
+          <select id="appTheme" title="App theme" aria-label="App theme">
+            <option value="system" selected>System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+          <button id="installApp" class="ghost" title="Install for offline use" hidden>Install</button>
+          <button id="printDoc" class="primary" title="Print or save as PDF">Print</button>
+          <input id="fileInput" type="file" accept=".html,.htm,.doc,.docx,.txt,text/html,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+        </div>
+      </header>
+
+      <div class="mobile-tabs" aria-label="Toolbar sections">
+        <button data-toolbar-tab="text" class="active">Text</button>
+        <button data-toolbar-tab="insert">Insert</button>
+        <button data-toolbar-tab="ink">Pencil</button>
+        <button data-toolbar-tab="page">Page</button>
+        <button data-toolbar-tab="review">Review</button>
+      </div>
+
+      <nav class="toolbar" aria-label="Editor toolbar">
+        <section class="tool-group compact" data-tab="text">
+          <button data-command="undo" title="Undo">Undo</button>
+          <button data-command="redo" title="Redo">Redo</button>
+        </section>
+
+        <section class="tool-group" data-tab="text">
+          <select id="blockFormat" title="Paragraph style" aria-label="Paragraph style">
+            <option value="P">Paragraph</option>
+            <option value="H1">Heading 1</option>
+            <option value="H2">Heading 2</option>
+            <option value="H3">Heading 3</option>
+            <option value="BLOCKQUOTE">Quote</option>
+            <option value="PRE">Code</option>
+          </select>
+          <select id="fontName" title="Font" aria-label="Font">
+            <option value="Inter, Arial, sans-serif">Inter</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="'Times New Roman', serif">Times</option>
+            <option value="'Courier New', monospace">Courier</option>
+            <option value="Verdana, sans-serif">Verdana</option>
+          </select>
+          <select id="fontSize" title="Font size" aria-label="Font size">
+            <option value="2">Small</option>
+            <option value="3" selected>Normal</option>
+            <option value="4">Large</option>
+            <option value="5">Huge</option>
+            <option value="6">Display</option>
+          </select>
+        </section>
+
+        <section class="tool-group compact" data-tab="text">
+          <button id="uploadFontToolbar" title="Upload a font file for this document">Font file</button>
+        </section>
+
+        <section class="tool-group compact" data-tab="text">
+          <button data-command="bold" class="format-btn" title="Bold"><strong>B</strong></button>
+          <button data-command="italic" class="format-btn" title="Italic"><em>I</em></button>
+          <button data-command="underline" class="format-btn" title="Underline"><u>U</u></button>
+          <button data-command="strikeThrough" class="format-btn" title="Strikethrough"><s>S</s></button>
+          <button data-command="subscript" class="format-btn" title="Subscript">X₂</button>
+          <button data-command="superscript" class="format-btn" title="Superscript">X²</button>
+          <button data-command="removeFormat" title="Clear formatting">Tx</button>
+        </section>
+
+        <section class="tool-group colors" data-tab="text">
+          <label title="Text color">
+            <span>A</span>
+            <input id="foreColor" type="color" value="#111827" aria-label="Text color">
+          </label>
+          <label title="Highlight color">
+            <span>H</span>
+            <input id="hiliteColor" type="color" value="#fff3a3" aria-label="Highlight color">
+          </label>
+        </section>
+
+        <section class="tool-group compact" data-tab="text">
+          <button data-command="justifyLeft" title="Align left">L</button>
+          <button data-command="justifyCenter" title="Align center">C</button>
+          <button data-command="justifyRight" title="Align right">R</button>
+          <button data-command="justifyFull" title="Justify">J</button>
+        </section>
+
+        <section class="tool-group compact" data-tab="text">
+          <button data-command="insertUnorderedList" title="Bulleted list">•</button>
+          <button data-command="insertOrderedList" title="Numbered list">1.</button>
+          <button data-command="outdent" title="Decrease indent">‹</button>
+          <button data-command="indent" title="Increase indent">›</button>
+        </section>
+
+        <section class="tool-group compact" data-tab="insert">
+          <button id="insertLink" title="Insert link">Link</button>
+          <button id="insertImage" title="Insert image">Image</button>
+          <button id="insertTable" title="Insert table">Table</button>
+          <button id="insertPageBreak" title="Insert page break">Break</button>
+          <input id="imageInput" type="file" accept="image/*" hidden>
+        </section>
+
+        <section class="tool-group compact" data-tab="ink">
+          <button id="pencilMode" title="Draw on the page with Apple Pencil or a stylus">Pencil</button>
+          <button id="eraserMode" title="Erase ink strokes">Eraser</button>
+          <button id="clearInk" title="Clear all ink from this document">Clear</button>
+        </section>
+
+        <section class="tool-group colors" data-tab="ink">
+          <label title="Pencil color">
+            <span>P</span>
+            <input id="inkColor" type="color" value="#136f63" aria-label="Pencil color">
+          </label>
+        </section>
+
+        <section class="tool-group" data-tab="ink">
+          <label class="range-tool" title="Pencil thickness">
+            Size
+            <input id="inkSize" type="range" min="1" max="14" value="4" step="1" aria-label="Pencil thickness">
+          </label>
+        </section>
+
+        <section class="tool-group" data-tab="page">
+          <select id="pageSize" title="Page size" aria-label="Page size">
+            <option value="letter" selected>Letter</option>
+            <option value="a4">A4</option>
+            <option value="legal">Legal</option>
+          </select>
+          <select id="pageMargin" title="Margins" aria-label="Margins">
+            <option value="normal" selected>Normal</option>
+            <option value="narrow">Narrow</option>
+            <option value="wide">Wide</option>
+          </select>
+          <select id="pageTheme" title="Page color" aria-label="Page color">
+            <option value="white" selected>White</option>
+            <option value="warm">Warm</option>
+            <option value="mint">Mint</option>
+            <option value="night">Night</option>
+          </select>
+        </section>
+
+        <section class="tool-group compact" data-tab="review">
+          <button id="focusFind" title="Go to find">Find</button>
+          <button id="saveVersionToolbar" title="Save version snapshot">Snapshot</button>
+        </section>
+      </nav>
+
+      <main class="workspace">
+        <aside class="side-panel">
+          <div class="panel-section stats">
+            <div>
+              <span id="wordCount">0</span>
+              <small>words</small>
+            </div>
+            <div>
+              <span id="charCount">0</span>
+              <small>characters</small>
+            </div>
+            <div>
+              <span id="pageEstimate">1</span>
+              <small>pages</small>
+            </div>
+            <div>
+              <span id="readTime">1</span>
+              <small>min read</small>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h2>Find</h2>
+            <input id="findText" type="search" placeholder="Find text" aria-label="Find text">
+            <input id="replaceText" type="text" placeholder="Replace with" aria-label="Replace with">
+            <div class="panel-actions">
+              <button id="findNext">Find</button>
+              <button id="replaceNext">Replace</button>
+              <button id="replaceAll">All</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h2>Templates</h2>
+            <select id="templatePicker" aria-label="Template">
+              <option value="">Blank</option>
+              <option value="resume">Resume</option>
+              <option value="letter">Letter</option>
+              <option value="assignment">Assignment</option>
+              <option value="report">Report</option>
+              <option value="invoice">Invoice</option>
+            </select>
+            <button id="useTemplate">Use</button>
+          </div>
+
+          <div class="panel-section">
+            <h2>Versions</h2>
+            <select id="versionPicker" aria-label="Saved versions">
+              <option value="">No versions yet</option>
+            </select>
+            <div class="panel-actions">
+              <button id="saveVersion">Snapshot</button>
+              <button id="restoreVersion">Restore</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h2>Writing</h2>
+            <div class="font-upload">
+              <span id="customFontStatus">No uploaded font</span>
+              <select id="customFontPicker" aria-label="Uploaded fonts">
+                <option value="">No uploaded fonts</option>
+              </select>
+              <div class="panel-actions">
+                <button id="uploadFont" title="Upload OTF, TTF, WOFF, or WOFF2 font">Upload</button>
+                <button id="applyCustomFont" title="Apply selected uploaded font">Apply</button>
+                <button id="deleteCustomFont" title="Delete selected uploaded font">Delete</button>
+                <button id="clearCustomFont" title="Return document to the default font">Default</button>
+              </div>
+              <input id="customFontInput" type="file" accept=".otf,.ttf,.woff,.woff2,font/otf,font/ttf,font/woff,font/woff2" hidden>
+            </div>
+            <label class="check-row">
+              <input id="dictionaryToggle" type="checkbox" checked>
+              Dictionary
+            </label>
+            <label class="check-row">
+              <input id="autoCorrectToggle" type="checkbox">
+              Auto-correct
+            </label>
+          </div>
+
+          <div class="panel-section">
+            <h2>Spacing</h2>
+            <label>
+              Line
+              <input id="lineHeight" type="range" min="1" max="2.4" value="1.45" step="0.05">
+            </label>
+            <label>
+              Zoom
+              <input id="zoomLevel" type="range" min="70" max="140" value="100" step="5">
+            </label>
+          </div>
+        </aside>
+
+        <section class="document-stage" aria-label="Document workspace">
+          <article id="editor" class="page" contenteditable="true" spellcheck="true" aria-label="Document editor">
+            <h1>Start writing freely</h1>
+            <p>This is your free web word processor. Format text, add lists, insert images and tables, then print to PDF or download your work.</p>
+            <p>Select any text and use the toolbar above to shape your document.</p>
+          </article>
+        </section>
+      </main>
+
+      <footer class="statusbar">
+        <span id="saveStatus">Ready</span>
+        <span id="selectionStatus">No selection</span>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
