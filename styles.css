@@ -40,6 +40,10 @@ body {
   min-height: 100%;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -51,6 +55,13 @@ button,
 input,
 select {
   font: inherit;
+  max-width: 100%;
+}
+
+input,
+select,
+textarea {
+  min-width: 0;
 }
 
 button,
@@ -105,6 +116,8 @@ button.active {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   overflow: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .topbar,
@@ -185,6 +198,22 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.panel-actions button {
+  flex: 1 1 72px;
+}
+
+.panel-actions button,
+.file-actions button {
+  white-space: nowrap;
+}
+
+.panel-actions,
+.font-upload,
+.stats {
+  min-width: 0;
 }
 
 .file-actions {
@@ -624,7 +653,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  padding: 8px 14px;
+  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
   color: var(--muted);
   font-size: 13px;
 }
@@ -793,13 +822,20 @@ h2 {
   .app {
     min-height: 100dvh;
     height: 100dvh;
-    grid-template-columns: 56px clamp(124px, 34vw, 164px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "topbar"
+      "tabs"
+      "toolbar"
+      "workspace"
+      "status";
   }
 
   .topbar {
     align-items: flex-start;
     flex-direction: column;
-    padding: 10px;
+    padding: 10px max(10px, env(safe-area-inset-right)) 10px max(10px, env(safe-area-inset-left));
   }
 
   .brand {
@@ -816,6 +852,9 @@ h2 {
   .file-actions {
     width: 100%;
     justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 
   button,
@@ -830,13 +869,33 @@ h2 {
   }
 
   .toolbar {
-    min-height: 52px;
+    min-height: 0;
+    align-items: center;
+    flex-direction: row;
     padding: 8px;
     gap: 8px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .mobile-tabs {
     display: flex;
+    flex-direction: row;
+    padding: 8px 10px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .mobile-tabs button {
+    width: auto;
+    min-width: max-content;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
   }
 
   .toolbar .tool-group {
@@ -854,11 +913,28 @@ h2 {
 
   .tool-group {
     padding-right: 0;
-    padding-bottom: 8px;
+    padding-bottom: 0;
+    padding-inline-end: 8px;
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
+    flex: 0 0 auto;
+    width: auto;
+    flex-wrap: nowrap;
+  }
+
+  .tool-group:last-child {
+    border-right: 0;
+  }
+
+  .tool-group button,
+  .tool-group select,
+  .colors label {
+    flex: 0 0 auto;
   }
 
   .workspace {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     overflow: hidden;
   }
 
@@ -868,13 +944,15 @@ h2 {
   }
 
   body[data-toolbar-tab="ai"] .workspace {
-    grid-template-columns: clamp(158px, 42vw, 190px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(168px, 36dvh) minmax(0, 1fr);
   }
 
   body[data-toolbar-tab="ai"] .side-panel {
     display: block;
     padding: 10px;
-    border-right: 1px solid var(--line);
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
     overflow-y: auto;
   }
 
@@ -909,9 +987,8 @@ h2 {
 
   .page {
     width: 100%;
-    min-width: 320px;
     min-height: 76vh;
-    padding: 24px;
+    padding: clamp(18px, 6vw, 24px);
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
   }
 
@@ -939,7 +1016,7 @@ h2 {
 
 @media (max-width: 430px) {
   .app {
-    grid-template-columns: 52px 116px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .topbar {
@@ -964,7 +1041,8 @@ h2 {
   }
 
   body[data-toolbar-tab="ai"] .workspace {
-    grid-template-columns: 144px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(156px, 34dvh) minmax(0, 1fr);
   }
 
   .document-stage {
@@ -973,7 +1051,6 @@ h2 {
   }
 
   .page {
-    min-width: 300px;
     padding: 18px;
     border-left: 0;
     border-right: 0;
