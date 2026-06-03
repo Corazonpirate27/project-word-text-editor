@@ -42,6 +42,7 @@
         <button data-toolbar-tab="insert">Insert</button>
         <button data-toolbar-tab="ink">Pencil</button>
         <button data-toolbar-tab="page">Page</button>
+        <button data-toolbar-tab="ai">AI</button>
         <button data-toolbar-tab="review">Review</button>
       </div>
 
@@ -163,6 +164,12 @@
           </select>
         </section>
 
+        <section class="tool-group compact" data-tab="ai">
+          <button id="aiImproveToolbar" title="Improve selected text or the whole document with Groq AI">Improve</button>
+          <button id="aiContinueToolbar" title="Continue writing with Groq AI">Continue</button>
+          <button id="aiPanelFocus" title="Go to AI settings">Settings</button>
+        </section>
+
         <section class="tool-group compact" data-tab="review">
           <button id="focusFind" title="Go to find">Find</button>
           <button id="saveVersionToolbar" title="Save version snapshot">Snapshot</button>
@@ -248,6 +255,24 @@
               <input id="autoCorrectToggle" type="checkbox">
               Auto-correct
             </label>
+          </div>
+
+          <div class="panel-section ai-panel" id="aiPanel">
+            <h2>AI</h2>
+            <input id="groqApiKey" type="password" placeholder="Groq API key" aria-label="Groq API key" autocomplete="off">
+            <textarea id="aiPrompt" rows="4" placeholder="Ask AI to rewrite, summarize, brainstorm, translate, or continue..." aria-label="AI instruction"></textarea>
+            <div class="panel-actions">
+              <button id="saveGroqKey">Save key</button>
+              <button id="clearGroqKey">Clear</button>
+            </div>
+            <div class="panel-actions">
+              <button id="aiImprove">Improve</button>
+              <button id="aiSummarize">Summarize</button>
+              <button id="aiContinue">Continue</button>
+            </div>
+            <button id="aiCustom" class="primary">Run AI</button>
+            <p class="panel-help">Create a free Groq account, open API Keys, generate a key, then paste it here. Your key is kept in this browser only.</p>
+            <a class="panel-link" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">Open Groq API keys</a>
           </div>
 
           <div class="panel-section">

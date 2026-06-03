@@ -285,6 +285,8 @@ h2 {
 
 .panel-section input[type="search"],
 .panel-section input[type="text"],
+.panel-section input[type="password"],
+.panel-section textarea,
 .panel-section select {
   width: 100%;
   min-height: 36px;
@@ -294,6 +296,35 @@ h2 {
   padding: 0 10px;
   background: var(--surface);
   color: var(--ink);
+}
+
+.panel-section textarea {
+  min-height: 96px;
+  padding: 10px;
+  resize: vertical;
+}
+
+.panel-help,
+.panel-link {
+  display: block;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.panel-link {
+  color: var(--accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.panel-link:hover {
+  text-decoration: underline;
+}
+
+.ai-panel .primary {
+  width: 100%;
 }
 
 .font-upload {
@@ -610,8 +641,39 @@ h2 {
 }
 
 @media (max-width: 1180px) {
+  .app {
+    grid-template-columns: 68px clamp(176px, 23vw, 248px) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "topbar topbar topbar"
+      "tabs toolbar workspace"
+      "status status status";
+  }
+
   .topbar {
+    grid-area: topbar;
     gap: 12px;
+  }
+
+  .mobile-tabs {
+    grid-area: tabs;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    padding: 10px 8px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .mobile-tabs button {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 6px;
+    font-size: 12px;
   }
 
   .file-actions {
@@ -622,24 +684,95 @@ h2 {
     scrollbar-width: thin;
   }
 
+  .toolbar {
+    grid-area: toolbar;
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .toolbar .tool-group {
+    display: none;
+  }
+
+  body[data-toolbar-tab="text"] .toolbar .tool-group[data-tab="text"],
+  body[data-toolbar-tab="insert"] .toolbar .tool-group[data-tab="insert"],
+  body[data-toolbar-tab="ink"] .toolbar .tool-group[data-tab="ink"],
+  body[data-toolbar-tab="page"] .toolbar .tool-group[data-tab="page"],
+  body[data-toolbar-tab="ai"] .toolbar .tool-group[data-tab="ai"],
+  body[data-toolbar-tab="review"] .toolbar .tool-group[data-tab="review"] {
+    display: flex;
+  }
+
+  .tool-group {
+    align-items: stretch;
+    flex-wrap: wrap;
+    width: 100%;
+    padding-right: 0;
+    padding-bottom: 10px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tool-group:last-child {
+    border-bottom: 0;
+  }
+
+  .tool-group button,
+  .tool-group select,
+  .colors label {
+    flex: 1 1 72px;
+    min-width: 0;
+  }
+
+  .toolbar select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .colors label {
+    justify-content: space-between;
+  }
+
+  .range-tool {
+    width: 100%;
+  }
+
+  .range-tool input {
+    min-width: 0;
+    width: 100%;
+  }
+
   .workspace {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-area: workspace;
+    grid-template-columns: clamp(190px, 24vw, 240px) minmax(0, 1fr);
+  }
+
+  .statusbar {
+    grid-area: status;
   }
 
   .side-panel {
-    display: grid;
-    grid-template-columns: minmax(220px, 1.1fr) minmax(210px, 1fr) minmax(180px, 0.8fr) minmax(180px, 0.8fr);
-    gap: 14px;
-    max-height: 220px;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-    overflow: auto;
+    display: block;
+    max-height: none;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    overflow-y: auto;
   }
 
   .panel-section {
-    border-bottom: 0;
-    padding: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+  }
+
+  .panel-section:first-child {
+    padding-top: 0;
   }
 
   .document-stage {
@@ -654,12 +787,13 @@ h2 {
 
 @media (max-width: 760px) {
   body {
-    overflow: auto;
+    overflow: hidden;
   }
 
   .app {
     min-height: 100dvh;
-    height: auto;
+    height: 100dvh;
+    grid-template-columns: 56px clamp(124px, 34vw, 164px) minmax(0, 1fr);
   }
 
   .topbar {
@@ -697,7 +831,7 @@ h2 {
 
   .toolbar {
     min-height: 52px;
-    padding: 8px 10px;
+    padding: 8px;
     gap: 8px;
   }
 
@@ -713,22 +847,55 @@ h2 {
   body[data-toolbar-tab="insert"] .toolbar .tool-group[data-tab="insert"],
   body[data-toolbar-tab="ink"] .toolbar .tool-group[data-tab="ink"],
   body[data-toolbar-tab="page"] .toolbar .tool-group[data-tab="page"],
+  body[data-toolbar-tab="ai"] .toolbar .tool-group[data-tab="ai"],
   body[data-toolbar-tab="review"] .toolbar .tool-group[data-tab="review"] {
     display: flex;
   }
 
   .tool-group {
-    padding-right: 8px;
+    padding-right: 0;
+    padding-bottom: 8px;
   }
 
   .workspace {
-    overflow: visible;
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
   }
 
   .side-panel {
-    grid-template-columns: 1fr;
-    max-height: none;
-    padding: 12px;
+    display: none;
+    font-size: 13px;
+  }
+
+  body[data-toolbar-tab="ai"] .workspace {
+    grid-template-columns: clamp(158px, 42vw, 190px) minmax(0, 1fr);
+  }
+
+  body[data-toolbar-tab="ai"] .side-panel {
+    display: block;
+    padding: 10px;
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+  }
+
+  body[data-toolbar-tab="ai"] .side-panel .panel-section {
+    display: none;
+  }
+
+  body[data-toolbar-tab="ai"] .side-panel .ai-panel {
+    display: block;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  body[data-toolbar-tab="ai"] .ai-panel .panel-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  body[data-toolbar-tab="ai"] .ai-panel .panel-actions button {
+    flex: 1 1 64px;
+    min-width: 0;
   }
 
   .title-input {
@@ -736,12 +903,13 @@ h2 {
   }
 
   .document-stage {
-    overflow-x: hidden;
+    overflow: auto;
     padding: 12px 8px 48px;
   }
 
   .page {
     width: 100%;
+    min-width: 320px;
     min-height: 76vh;
     padding: 24px;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
@@ -770,6 +938,10 @@ h2 {
 }
 
 @media (max-width: 430px) {
+  .app {
+    grid-template-columns: 52px 116px minmax(0, 1fr);
+  }
+
   .topbar {
     padding: 9px;
   }
@@ -787,16 +959,12 @@ h2 {
     max-width: 138px;
   }
 
-  .stats {
-    gap: 8px;
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .stats div {
-    padding: 10px;
-  }
-
-  .stats span {
-    font-size: 22px;
+  body[data-toolbar-tab="ai"] .workspace {
+    grid-template-columns: 144px minmax(0, 1fr);
   }
 
   .document-stage {
@@ -805,6 +973,7 @@ h2 {
   }
 
   .page {
+    min-width: 300px;
     padding: 18px;
     border-left: 0;
     border-right: 0;
@@ -823,10 +992,6 @@ h2 {
     padding-bottom: 7px;
   }
 
-  .side-panel {
-    max-height: 168px;
-  }
-
   .document-stage {
     padding-top: 14px;
     padding-bottom: 44px;
@@ -839,6 +1004,7 @@ h2 {
   .colors label,
   .panel-section input[type="search"],
   .panel-section input[type="text"],
+  .panel-section input[type="password"],
   .panel-section .check-row {
     min-height: 44px;
   }

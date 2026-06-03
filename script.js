@@ -9,6 +9,8 @@ const readTime = document.querySelector("#readTime");
 const storageKey = "project-word-document";
 const versionsKey = "project-word-versions";
 const fontLibraryKey = "project-word-fonts";
+const groqKeyStorageKey = "project-word-groq-key";
+const groqSystemId = "groq/compound";
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const encoder = new TextEncoder();
 let saveTimer;
@@ -40,6 +42,8 @@ const commands = {
   inkSize: document.querySelector("#inkSize"),
   templatePicker: document.querySelector("#templatePicker"),
   versionPicker: document.querySelector("#versionPicker"),
+  groqApiKey: document.querySelector("#groqApiKey"),
+  aiPrompt: document.querySelector("#aiPrompt"),
 };
 
 const marginValues = {
@@ -1002,6 +1006,137 @@ function useTemplate() {
   saveStatus.textContent = "Template applied";
 }
 
+function loadAiSettings() {
+  commands.groqApiKey.value = localStorage.getItem(groqKeyStorageKey) || "";
+  saveStatus.textContent = commands.groqApiKey.value ? "Groq AI ready" : saveStatus.textContent;
+}
+
+function saveGroqKey() {
+  const key = commands.groqApiKey.value.trim();
+  if (!key) {
+    saveStatus.textContent = "Paste a Groq API key first";
+    return;
+  }
+
+  localStorage.setItem(groqKeyStorageKey, key);
+  saveStatus.textContent = "Groq key saved in this browser";
+}
+
+function clearGroqKey() {
+  localStorage.removeItem(groqKeyStorageKey);
+  commands.groqApiKey.value = "";
+  saveStatus.textContent = "Groq key cleared";
+}
+
+function selectedEditorText() {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0 || !editor.contains(selection.anchorNode)) return "";
+  return selection.toString().trim();
+}
+
+function contextForAi() {
+  const selected = selectedEditorText();
+  const documentText = editor.innerText.replace(/\n{3,}/g, "\n\n").trim();
+  return {
+    selected,
+    documentText,
+    input: selected || documentText,
+    hasSelection: Boolean(selected),
+  };
+}
+
+function aiInstruction(action, customPrompt = "") {
+  const instructions = {
+    improve: "Improve the writing for clarity, flow, grammar, and readability. Keep the original meaning. Return only the improved text.",
+    summarize: "Summarize the text clearly and concisely. Return only the summary.",
+    continue: "Continue the document naturally from where it ends. Match the current tone and style. Return only the continuation.",
+    custom: customPrompt || "Help improve this document. Return only useful text for the document.",
+  };
+  return instructions[action] || instructions.custom;
+}
+
+function insertAiText(text, mode) {
+  const cleaned = text.trim();
+  if (!cleaned) return;
+
+  editor.focus();
+  if (mode === "replace" && selectedEditorText()) {
+    document.execCommand("insertText", false, cleaned);
+  } else {
+    const prefix = editor.innerText.trim() ? "\n\n" : "";
+    document.execCommand("insertText", false, `${prefix}${cleaned}`);
+  }
+
+  resetInkAfterContentChange();
+  refreshStats();
+  queueSave();
+}
+
+async function runGroqAi(action) {
+  const key = commands.groqApiKey.value.trim() || localStorage.getItem(groqKeyStorageKey);
+  if (!key) {
+    saveStatus.textContent = "Add your Groq API key first";
+    commands.groqApiKey.focus();
+    return;
+  }
+
+  const context = contextForAi();
+  if (!context.input && action !== "custom") {
+    saveStatus.textContent = "Write or select text first";
+    return;
+  }
+
+  const customPrompt = commands.aiPrompt.value.trim();
+  const instruction = aiInstruction(action, customPrompt);
+  const targetText = action === "continue" ? context.documentText : context.input;
+  if (!targetText && !customPrompt) {
+    saveStatus.textContent = "Add an AI instruction or document text first";
+    return;
+  }
+
+  saveStatus.textContent = "Asking Groq AI...";
+
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: groqSystemId,
+        temperature: action === "summarize" ? 0.2 : 0.45,
+        max_completion_tokens: 900,
+        messages: [
+          {
+            role: "system",
+            content: "You are a careful writing assistant inside a word processor. Do not explain your process. Return only text that can be inserted into the document.",
+          },
+          {
+            role: "user",
+            content: `${instruction}\n\nDocument context:\n${targetText || "(No document text provided.)"}`,
+          },
+        ],
+      }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = data.error?.message || `Groq request failed (${response.status})`;
+      throw new Error(message);
+    }
+
+    const output = data.choices?.[0]?.message?.content || "";
+    if (!output.trim()) throw new Error("Groq returned an empty response");
+    insertAiText(output, action === "improve" && context.hasSelection ? "replace" : "append");
+    saveStatus.textContent = action === "continue" ? "AI continuation added" : context.hasSelection && action === "improve" ? "Selection improved" : "AI result added";
+  } catch (error) {
+    saveStatus.textContent = error.message.includes("Failed to fetch")
+      ? "Groq request was blocked or the network is unavailable"
+      : error.message;
+  }
+}
+
 function setToolbarTab(tab) {
   document.body.dataset.toolbarTab = tab;
   document.querySelectorAll("[data-toolbar-tab]").forEach((button) => {
@@ -1103,6 +1238,15 @@ document.querySelector("#saveVersion").addEventListener("click", () => saveVersi
 document.querySelector("#restoreVersion").addEventListener("click", restoreVersion);
 document.querySelector("#focusFind").addEventListener("click", () => document.querySelector("#findText").focus());
 document.querySelector("#saveVersionToolbar").addEventListener("click", () => saveVersion("Snapshot"));
+document.querySelector("#saveGroqKey").addEventListener("click", saveGroqKey);
+document.querySelector("#clearGroqKey").addEventListener("click", clearGroqKey);
+document.querySelector("#aiImprove").addEventListener("click", () => runGroqAi("improve"));
+document.querySelector("#aiSummarize").addEventListener("click", () => runGroqAi("summarize"));
+document.querySelector("#aiContinue").addEventListener("click", () => runGroqAi("continue"));
+document.querySelector("#aiCustom").addEventListener("click", () => runGroqAi("custom"));
+document.querySelector("#aiImproveToolbar").addEventListener("click", () => runGroqAi("improve"));
+document.querySelector("#aiContinueToolbar").addEventListener("click", () => runGroqAi("continue"));
+document.querySelector("#aiPanelFocus").addEventListener("click", () => commands.groqApiKey.focus());
 document.querySelectorAll("[data-toolbar-tab]").forEach((button) => {
   button.addEventListener("click", () => setToolbarTab(button.dataset.toolbarTab));
 });
@@ -1195,6 +1339,7 @@ document.addEventListener("selectionchange", updateToolbarState);
 loadDocument();
 applyAppTheme();
 renderFontLibrary();
+loadAiSettings();
 applyCustomFont();
 applyPageSettings();
 applyWritingSettings();
